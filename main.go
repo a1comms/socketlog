@@ -40,16 +40,21 @@ func main() {
 	logger := client.Logger(logName)
 
 	if len(os.Args) != 2 {
-		panic(fmt.Errorf("no SOCKET file specified"))
+		log.Fatalf("no SOCKET file specified")
 	}
 
 	l, err := net.Listen("unix", os.Args[1])
 	if err != nil {
-		panic(err)
+		log.Fatalf("UNIX SOCKET ERROR: %s", err)
 	}
 	// Just work with defer here; this works as long as the signal handling
 	// happens in the main Go routine.
 	defer l.Close()
+
+	// chmod the socket so everyone can connect.
+	if err := os.Chmod(os.Args[1], 0777); err != nil {
+		log.Fatal(err)
+	}
 
 	// Make sure the server does not block the main
 	go func() {
