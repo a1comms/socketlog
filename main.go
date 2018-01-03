@@ -40,7 +40,7 @@ func main() {
 	logger := client.Logger(logName)
 
 	if len(os.Args) != 2 {
-		panic(fmt.Errorf("no FIFO file specified"))
+		panic(fmt.Errorf("no SOCKET file specified"))
 	}
 
 	l, err := net.Listen("unix", os.Args[1])
@@ -60,7 +60,7 @@ func main() {
 		for {
 			fd, err := l.Accept()
 			if err != nil {
-				panic(err)
+				log.Printf("Error while accepting connection: %s", err)
 			}
 
 			go acceptMessages(fd)
@@ -89,7 +89,7 @@ func acceptMessages(fd net.Conn) {
 
 	err := bfd.Err()
 	if err != nil {
-		panic(err)
+		log.Printf("Error while reading from SOCKET: %s", err)
 	}
 }
 
