@@ -43,6 +43,22 @@ func main() {
 		log.Fatalf("no SOCKET file specified")
 	}
 
+	// Check for existing socket file.
+	if _, err := os.Stat(os.Args[1]); err == nil {
+		log.Printf("Socket already exists... Can we connect to it?")
+		c, err := net.Dial("unix", os.Args[1])
+		if err != nil {
+			log.Printf("Unable to connect to existing socket, deleting it...")
+			err = os.Remove(os.Args[1])
+			if err != nil {
+				log.Fatalf("Failed to delete existing socket: %s", err)
+			}
+		} else {
+			c.Close()
+			log.Fatalf("Connection to existing socket OK, looks like we aren't needed...")
+		}
+	}
+
 	l, err := net.Listen("unix", os.Args[1])
 	if err != nil {
 		log.Fatalf("UNIX SOCKET ERROR: %s", err)
